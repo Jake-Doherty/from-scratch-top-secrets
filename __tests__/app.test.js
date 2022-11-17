@@ -14,11 +14,11 @@ describe('backend-express-template routes', () => {
   beforeEach(() => {
     return setup(pool);
   });
+
   it('should create a new user', async () => {
-    const newUser = await request(app).post('/app/v1/users').send(testUser);
-
+    const newUser = await request(app).post('/api/v1/users').send(testUser);
     const { firstName, lastName, email } = testUser;
-
+    expect(newUser.status).toBe(200);
     expect(newUser.body).toEqual({
       id: expect.any(String),
       firstName,
