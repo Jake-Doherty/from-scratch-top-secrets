@@ -15,7 +15,7 @@ describe('backend-express-template routes', () => {
     return setup(pool);
   });
 
-  it('should create a new user', async () => {
+  it('POST /api/v1/users should create a new user', async () => {
     const newUser = await request(app).post('/api/v1/users').send(testUser);
     const { firstName, lastName, email } = testUser;
     expect(newUser.status).toBe(200);
@@ -25,6 +25,21 @@ describe('backend-express-template routes', () => {
       lastName,
       email,
     });
+  });
+
+  it('POST /api/v1/users/sessions should log in a user', async () => {
+    await request(app).post('/api/v1/users').send(testUser);
+
+    const userSignIn = {
+      email: testUser.email,
+      password: testUser.password,
+    };
+
+    const res = await request(app)
+      .post('/api/v1/users/sessions')
+      .send(userSignIn);
+
+    expect(res.body.message).toEqual('Signed in successfully!');
   });
   afterAll(() => {
     pool.end();
