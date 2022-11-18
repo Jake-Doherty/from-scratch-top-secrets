@@ -3,25 +3,6 @@ const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
 
-const testSecret = {
-  title: 'auctor gravida sem praesent',
-  description:
-    'consequat in consequat ut nulla sed accumsan felis ut at dolor quis odio consequat varius integer ac',
-  created_at: '1/11/2022',
-};
-
-// const testUser = {
-//   firstName: 'Test',
-//   lastName: 'TestUser',
-//   email: 'test@test.com',
-//   password: 'asdfasdf',
-// };
-
-// const userSignIn = {
-//   email: testUser.email,
-//   password: testUser.password,
-// };
-
 describe('secrets routes', () => {
   beforeEach(() => {
     return setup(pool);
