@@ -41,6 +41,19 @@ describe('backend-express-template routes', () => {
 
     expect(res.body.message).toEqual('Signed in successfully!');
   });
+
+  it.only('DELETE /api/v1/users/sessions should log out a signed in user', async () => {
+    const userSignIn = {
+      email: testUser.email,
+      password: testUser.password,
+    };
+    await request(app).post('/api/v1/users').send(testUser);
+    await request(app).post('/api/v1/users/sessions').send(userSignIn);
+
+    const resp = await request(app).del('/api/v1/users/sessions');
+
+    expect(resp.body.message).toEqual('Signed out successfully!');
+  });
   afterAll(() => {
     pool.end();
   });
