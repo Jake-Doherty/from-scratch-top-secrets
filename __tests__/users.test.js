@@ -10,7 +10,12 @@ const testUser = {
   password: 'asdfasdf',
 };
 
-describe('backend-express-template routes', () => {
+const userSignIn = {
+  email: testUser.email,
+  password: testUser.password,
+};
+
+describe('user creation, sign in, and sign out routes', () => {
   beforeEach(() => {
     return setup(pool);
   });
@@ -30,11 +35,6 @@ describe('backend-express-template routes', () => {
   it('POST /api/v1/users/sessions should log in a user', async () => {
     await request(app).post('/api/v1/users').send(testUser);
 
-    const userSignIn = {
-      email: testUser.email,
-      password: testUser.password,
-    };
-
     const res = await request(app)
       .post('/api/v1/users/sessions')
       .send(userSignIn);
@@ -42,11 +42,7 @@ describe('backend-express-template routes', () => {
     expect(res.body.message).toEqual('Signed in successfully!');
   });
 
-  it.only('DELETE /api/v1/users/sessions should log out a signed in user', async () => {
-    const userSignIn = {
-      email: testUser.email,
-      password: testUser.password,
-    };
+  it('DELETE /api/v1/users/sessions should log out a signed in user', async () => {
     await request(app).post('/api/v1/users').send(testUser);
     await request(app).post('/api/v1/users/sessions').send(userSignIn);
 
@@ -54,6 +50,7 @@ describe('backend-express-template routes', () => {
 
     expect(resp.body.message).toEqual('Signed out successfully!');
   });
+
   afterAll(() => {
     pool.end();
   });
