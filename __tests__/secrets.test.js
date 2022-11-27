@@ -11,11 +11,6 @@ const testUser = {
   password: 'asdfasdf',
 };
 
-const userSignIn = {
-  email: testUser.email,
-  password: testUser.password,
-};
-
 const registerAndLogin = async (userProps = {}) => {
   const password = userProps.password ?? testUser.password;
 
@@ -33,23 +28,10 @@ describe('secrets routes', () => {
     return setup(pool);
   });
 
-  it.only('GET /api/v1/secrets should return a list of secrets', async () => {
+  it('GET /api/v1/secrets should return a list of secrets', async () => {
     const [agent] = await registerAndLogin();
-    // const user = await UserService.create({ ...testUser });
-    // console.log('user log', user);
-    // const signedIn = await agent.post('/api/v1/users/sessions').send(user);
-    console.log('agent log', agent);
 
     const resp = await agent.get('/api/v1/secrets');
-
-    // await request(app).post('/api/v1/users').send(testUser);
-    // // console.log(createUser);
-    // const user = await request(app)
-    //   .post('/api/v1/users/sessions')
-    //   .send(userSignIn);
-    // // console.log(signedInUser);
-    // console.log('whatever', user);
-    // const resp = await request(app).get('/api/v1/secrets');
 
     expect(resp.status).toBe(200);
     expect(resp.body).toMatchInlineSnapshot(`
@@ -119,9 +101,9 @@ describe('secrets routes', () => {
   });
 
   it('POST /api/v1/secrets should post a new secret to the db', async () => {
-    await request(app).post('/api/v1/users').send(testUser);
-    await request(app).post('/api/v1/users/sessions').send(userSignIn);
-    const resp = await request(app).post('/api/v1/secrets').send({
+    const [agent] = await registerAndLogin();
+
+    const resp = await agent.post('/api/v1/secrets').send({
       title: 'auctor gravida sem praesent',
       description:
         'consequat in consequat ut nulla sed accumsan felis ut at dolor quis odio consequat varius integer ac',
