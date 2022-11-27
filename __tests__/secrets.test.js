@@ -2,14 +2,55 @@ const pool = require('../lib/utils/pool');
 const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
+const UserService = require('../lib/services/UserService.js');
+
+const testUser = {
+  firstName: 'Test',
+  lastName: 'TestUser',
+  email: 'test@test.com',
+  password: 'asdfasdf',
+};
+
+const userSignIn = {
+  email: testUser.email,
+  password: testUser.password,
+};
+
+const registerAndLogin = async (userProps = {}) => {
+  const password = userProps.password ?? testUser.password;
+
+  const agent = request.agent(app);
+
+  const user = await UserService.create({ ...testUser, ...userProps });
+
+  const { email } = user;
+  await agent.post('/api/v1/users/sessions').send({ email, password });
+  return [agent, user];
+};
 
 describe('secrets routes', () => {
   beforeEach(() => {
     return setup(pool);
   });
 
-  it('GET /api/v1/secrets should return a list of secrets', async () => {
-    const resp = await request(app).get('/api/v1/secrets');
+  it.only('GET /api/v1/secrets should return a list of secrets', async () => {
+    const [agent] = await registerAndLogin();
+    // const user = await UserService.create({ ...testUser });
+    // console.log('user log', user);
+    // const signedIn = await agent.post('/api/v1/users/sessions').send(user);
+    console.log('agent log', agent);
+
+    const resp = await agent.get('/api/v1/secrets');
+
+    // await request(app).post('/api/v1/users').send(testUser);
+    // // console.log(createUser);
+    // const user = await request(app)
+    //   .post('/api/v1/users/sessions')
+    //   .send(userSignIn);
+    // // console.log(signedInUser);
+    // console.log('whatever', user);
+    // const resp = await request(app).get('/api/v1/secrets');
+
     expect(resp.status).toBe(200);
     expect(resp.body).toMatchInlineSnapshot(`
       Array [
@@ -78,6 +119,8 @@ describe('secrets routes', () => {
   });
 
   it('POST /api/v1/secrets should post a new secret to the db', async () => {
+    await request(app).post('/api/v1/users').send(testUser);
+    await request(app).post('/api/v1/users/sessions').send(userSignIn);
     const resp = await request(app).post('/api/v1/secrets').send({
       title: 'auctor gravida sem praesent',
       description:
@@ -86,13 +129,13 @@ describe('secrets routes', () => {
     });
     expect(resp.status).toBe(200);
     expect(resp.body).toMatchInlineSnapshot(`
-      Object {
-        "created_at": "1/11/2022",
-        "description": "consequat in consequat ut nulla sed accumsan felis ut at dolor quis odio consequat varius integer ac",
-        "id": "11",
-        "title": "auctor gravida sem praesent",
-      }
-    `);
+          Object {
+            "created_at": "1/11/2022",
+            "description": "consequat in consequat ut nulla sed accumsan felis ut at dolor quis odio consequat varius integer ac",
+            "id": "11",
+            "title": "auctor gravida sem praesent",
+          }
+      `);
   });
 
   afterAll(() => {
